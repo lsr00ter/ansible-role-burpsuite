@@ -16,11 +16,7 @@ from defusedxml.ElementTree import parse
 
 def check_burp_status(prefs_file, product_type):
     """Return status for existance of entries in prefs.xml"""
-    burp_status = {
-        "eula": False,
-        "license": False,
-        "cacert": False
-    }
+    burp_status = {"eula": False, "license": False, "cacert": False}
     if os.path.isfile(burp_prefs_file):
         root = parse(burp_prefs_file)
         for entry in root.iter("entry"):
@@ -36,7 +32,11 @@ def check_burp_status(prefs_file, product_type):
 def find_burp_jar(burp_dir):
     """Search and return the path for the Burp Suite jar file"""
     burp_jar_path = ""
-    burp_jar_files = [ f for f in os.listdir(args.burpdir) if f.startswith("burpsuite_") and f.endswith(".jar")]
+    burp_jar_files = [
+        f
+        for f in os.listdir(args.burpdir)
+        if f.startswith("burpsuite_") and f.endswith(".jar")
+    ]
     if len(burp_jar_files) > 0:
         burp_jar_path = os.path.join(args.burpdir, burp_jar_files[0])
     return burp_jar_path
@@ -49,7 +49,7 @@ def activate_burp(pexpect_child, license_key):
         "Do you accept the license agreement\\? \\(y/n\\)",
         "please paste your license key below.",
         "Enter preferred activation method",
-        "Your license is successfully installed and activated."
+        "Your license is successfully installed and activated.",
     ]
     while True:
         i = pexpect_child.expect(expect_options)
@@ -78,9 +78,13 @@ def download_cacert(cacert_path):
         # Attempt to download
         for retry in range(18):
             try:
-                urllib.request.urlretrieve("http://localhost:8080/cert", temp_cacert_path)
+                urllib.request.urlretrieve(
+                    "http://localhost:8080/cert", temp_cacert_path
+                )
                 # If ca cert doesn't exist or doesn't match
-                if not os.path.isfile(cacert_path) or not filecmp.cmp(temp_cacert_path, cacert_path):
+                if not os.path.isfile(cacert_path) or not filecmp.cmp(
+                    temp_cacert_path, cacert_path
+                ):
                     shutil.move(temp_cacert_path, cacert_path)
                     os.chmod(cacert_path, 0o644)
                     print("[+] Certificate downloaded/updated")
@@ -93,11 +97,13 @@ def download_cacert(cacert_path):
     return False
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Burp Suite license/agreement.")
     parser.add_argument("burpdir", help="Burp Suite directory")
     parser.add_argument("--license-key", help="Burp Suite Pro license key")
-    parser.add_argument("--cacert-path", help="Download path for the Burp Suite CA public certificate.")
+    parser.add_argument(
+        "--cacert-path", help="Download path for the Burp Suite CA public certificate."
+    )
     args = parser.parse_args()
 
     license_key = None
@@ -106,10 +112,10 @@ if __name__=="__main__":
     exit_status = 0
     burp_dir = args.burpdir
     cacert_path = args.cacert_path
-    
+
     # Check BURP_LICENSE_KEY env var first
-    if os.getenv('BURP_LICENSE_KEY'):
-        license_key = os.getenv('BURP_LICENSE_KEY')
+    if os.getenv("BURP_LICENSE_KEY"):
+        license_key = os.getenv("BURP_LICENSE_KEY")
     elif args.license_key:
         license_key = args.license_key
 
@@ -141,19 +147,22 @@ if __name__=="__main__":
 
             # Start Burp Suite in headless mode
             burp_command = f"{java_path} --illegal-access=permit -Djava.awt.headless=true -jar '{burp_jar_path}'"
-            child = pexpect.popen_spawn.PopenSpawn(burp_command, encoding='UTF-8')
+            child = pexpect.popen_spawn.PopenSpawn(burp_command, encoding="UTF-8")
             child.logfile = sys.stdout
 
             # Check prefs.xml file to see if Burp Suite is already activated/licensed
-            burp_prefs_file = os.path.join(os.path.expanduser("~"), ".java/.userPrefs/burp/prefs.xml")
+            burp_prefs_file = os.path.join(
+                os.path.expanduser("~"), ".java/.userPrefs/burp/prefs.xml"
+            )
             burp_status = check_burp_status(burp_prefs_file, product_type)
-            if (burp_status["eula"] and
-                    (product_type == "community" or (product_type == "pro" and burp_status["license"]))):
+            if burp_status["eula"] and (
+                product_type == "community"
+                or (product_type == "pro" and burp_status["license"])
+            ):
                 print("Burp Suite already licensed/eula accepted")
             else:
                 # If activating Pro version, check license key argument was provided
-                if (not license_key
-                    and product_type == "pro"):
+                if not license_key and product_type == "pro":
                     print("[!] License key not provided")
                     sys.exit(1)
 
@@ -166,9 +175,14 @@ if __name__=="__main__":
                     # Wait for Burp Suite to complete activation processes
                     while True:
                         burp_status = check_burp_status(burp_prefs_file, product_type)
-                        if (burp_status["eula"]
-                            and (product_type == "community" or (product_type == "pro" and burp_status["license"]))
-                            and burp_status["cacert"]):
+                        if (
+                            burp_status["eula"]
+                            and (
+                                product_type == "community"
+                                or (product_type == "pro" and burp_status["license"])
+                            )
+                            and burp_status["cacert"]
+                        ):
                             break
                         time.sleep(10)
 
@@ -181,19 +195,26 @@ if __name__=="__main__":
 
                 # Check that Burp Suite is already activated and the cacert is generated
                 burp_status = check_burp_status(burp_prefs_file, product_type)
-                if (burp_status["eula"]
-                    and (product_type == "community" or (product_type == "pro" and burp_status["license"]))
-                    and burp_status["cacert"]):
+                if (
+                    burp_status["eula"]
+                    and (
+                        product_type == "community"
+                        or (product_type == "pro" and burp_status["license"])
+                    )
+                    and burp_status["cacert"]
+                ):
                     # Attempt to download ca public cert
                     downloaded = download_cacert(cacert_path)
                     if not downloaded:
                         print("[!] Could not acquire CA cert")
                         exit_status = 1
                 else:
-                    print("[!] Burp Suite must complete activation prior to downloading CA cert")
+                    print(
+                        "[!] Burp Suite must complete activation prior to downloading CA cert"
+                    )
                     exit_status = 1
 
-        except Exception as e: 
+        except Exception as e:
             print(e)
             exit_status = 1
         finally:

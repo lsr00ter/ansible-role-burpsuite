@@ -30,20 +30,20 @@
   ansible.builtin.import_tasks: deploy-extras.yml
 
 # Activate Burp Suite
-- name: Activate Burp Suite and download CA public certificate
-  ansible.builtin.command:
-    cmd: "python3 autoburp.py --cacert-path '{{ burpsuite_cacert_path }}' {{ burpsuite_install_dir }}"
-    chdir: "{{ burpsuite_extras_dir }}"
-  environment:
-    BURP_LICENSE_KEY: "{{ burpsuite_pro_license_key }}"
-  async: 600
-  register: autoburp
-  changed_when: "'Terms and conditions accepted.' in autoburp.stdout or
-    'License successfully installed and activated.' in autoburp.stdout or
-    'Certificate downloaded/updated' in autoburp.stdout"
-  become: true
-  become_user: "{{ burpsuite_user }}"
-  when: burpsuite_activate
+# - name: Activate Burp Suite and download CA public certificate
+#   ansible.builtin.command:
+#     cmd: "python3 autoburp.py --cacert-path '{{ burpsuite_cacert_path }}' {{ burpsuite_install_dir }}"
+#     chdir: "{{ burpsuite_extras_dir }}"
+#   environment:
+#     BURP_LICENSE_KEY: "{{ burpsuite_pro_license_key }}"
+#   async: 600
+#   register: autoburp
+#   changed_when: "'Terms and conditions accepted.' in autoburp.stdout or
+#     'License successfully installed and activated.' in autoburp.stdout or
+#     'Certificate downloaded/updated' in autoburp.stdout"
+#   become: true
+#   become_user: "{{ burpsuite_user }}"
+#   when: burpsuite_activate
 
 # Create default user config
 - name: User config
