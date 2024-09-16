@@ -9,13 +9,23 @@ In addition, this role will also:
 - Activate Burp Suite for the specified user (agree to terms, perform license activation)
 - Save the generated PortSwigger CA certificate
 - Download Jython and JRuby standalone jars
-- Set a basic user profile with the Jython and JRuby jars paths 
+- Set a basic user profile with the Jython and JRuby jars paths
 
 ## Requirements
 
 This role requires the `jmespath` Python library to be present on the host running the playbook for `json_query` filters.
 
 ## Example playbooks
+
+### Setup
+
+```yaml
+---
+roles:
+  # Install a role from Ansible Galaxy.
+  - name: lsr00ter.burp_suite
+    src: https://github.com/lsr00ter/ansible-role-burpsuite
+```
 
 ### Burp Suite Community edition
 
@@ -26,7 +36,7 @@ This role requires the `jmespath` Python library to be present on the host runni
     burpsuite_user: hacker
 
   roles:
-    - iesplin.burp_suite
+    - lsr00ter.burp_suite
 ```
 
 ### Burp Suite Professional
@@ -40,7 +50,7 @@ This role requires the `jmespath` Python library to be present on the host runni
     burpsuite_pro_license_key: <LICENSE_KEY_STRING>
 
   roles:
-    - iesplin.burp_suite
+    - lsr00ter.burp_suite
 ```
 
 ## License
